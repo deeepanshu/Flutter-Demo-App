@@ -1,10 +1,53 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() => MyAppState();
+}
+class MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   bool isAuthenticated = false;
+  String textValue = "Hello World!!";
+  FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  @override
+  void initState() {
+    firebaseMessaging.configure(
+      onLaunch: (Map<String, dynamic> msg) {
+        print("onLaunch called");
+      },
+      onResume: (Map<String, dynamic> msg) {
+        print("onResume called");
+      },
+      onMessage: (Map<String, dynamic> msg) {
+        print("onMessage called"+msg.values.join());
+      }
+    );
+    firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(
+        sound: true,
+        alert: true,
+        badge: true
+      )
+    );
+    firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings iosnotificationSetting) {
+      print("IOS SETTINGS REGISTERED");
+    });
+    firebaseMessaging.getToken().then((token) {
+      update(token);
+    });
+  }
+
+  update(String token) {
+    print(token);
+    textValue =  token;
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,6 +64,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
 
 class Login extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
